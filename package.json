@@ -1,0 +1,23 @@
+{
+    "name": "ecommerce-web",
+    "version": "1.0.0",
+    "description": "Full Stack E-commerce Web Application",
+    "scripts": {
+        "client": "cd client && npm run dev",
+        "server": "cd server && npm run dev",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "install-all": "npm install && cd client && npm install && cd ../server && npm install"
+    },
+    "keywords": [
+        "ecommerce",
+        "react",
+        "node",
+        "express",
+        "mongodb"
+    ],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "concurrently": "^9.1.3"
+    }
+}
