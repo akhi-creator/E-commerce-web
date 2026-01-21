@@ -6,7 +6,9 @@ const {
     logout,
     getMe,
     updateProfile,
-    updatePassword
+    updatePassword,
+    googleLogin,
+    facebookLogin
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
@@ -17,4 +19,9 @@ router.get('/me', protect, getMe);
 router.put('/updateprofile', protect, updateProfile);
 router.put('/updatepassword', protect, updatePassword);
 
+// OAuth routes
+router.post('/google', googleLogin);
+router.post('/facebook', facebookLogin);
+
 module.exports = router;
+

@@ -21,9 +21,22 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Please provide a password'],
         minlength: [6, 'Password must be at least 6 characters'],
         select: false
+    },
+    // OAuth provider fields
+    googleId: {
+        type: String,
+        default: null
+    },
+    facebookId: {
+        type: String,
+        default: null
+    },
+    authProvider: {
+        type: String,
+        enum: ['local', 'google', 'facebook'],
+        default: 'local'
     },
     role: {
         type: String,
@@ -57,8 +70,9 @@ const userSchema = new mongoose.Schema({
 
 // Encrypt password before saving
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) {
-        next();
+    // Only hash password if it's modified and exists (OAuth users may not have password)
+    if (!this.isModified('password') || !this.password) {
+        return next();
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -73,6 +87,10 @@ userSchema.methods.getSignedJwtToken = function () {
 
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
+    // If user doesn't have a password (OAuth user), return false
+    if (!this.password) {
+        return false;
+    }
     return await bcrypt.compare(enteredPassword, this.password);
 };
 

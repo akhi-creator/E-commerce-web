@@ -45,6 +45,38 @@ export const login = createAsyncThunk(
     }
 );
 
+// Google Login
+export const googleLogin = createAsyncThunk(
+    'auth/googleLogin',
+    async (credential, { rejectWithValue }) => {
+        try {
+            const data = await authService.googleLogin(credential);
+            return data;
+        } catch (error) {
+            if (error.code === 'ERR_NETWORK') {
+                return rejectWithValue('Server is not available. Please try again later.');
+            }
+            return rejectWithValue(error.response?.data?.message || 'Google login failed');
+        }
+    }
+);
+
+// Facebook Login
+export const facebookLogin = createAsyncThunk(
+    'auth/facebookLogin',
+    async ({ accessToken, userID }, { rejectWithValue }) => {
+        try {
+            const data = await authService.facebookLogin(accessToken, userID);
+            return data;
+        } catch (error) {
+            if (error.code === 'ERR_NETWORK') {
+                return rejectWithValue('Server is not available. Please try again later.');
+            }
+            return rejectWithValue(error.response?.data?.message || 'Facebook login failed');
+        }
+    }
+);
+
 // Logout user
 export const logout = createAsyncThunk('auth/logout', async () => {
     await authService.logout();
@@ -123,6 +155,36 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            // Google Login
+            .addCase(googleLogin.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(googleLogin.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = true;
+                state.user = action.payload.user;
+                state.token = action.payload.token;
+            })
+            .addCase(googleLogin.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Facebook Login
+            .addCase(facebookLogin.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(facebookLogin.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = true;
+                state.user = action.payload.user;
+                state.token = action.payload.token;
+            })
+            .addCase(facebookLogin.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
             // Logout
             .addCase(logout.fulfilled, (state) => {
                 state.user = null;
@@ -150,3 +212,4 @@ const authSlice = createSlice({
 
 export const { clearError, resetAuth } = authSlice.actions;
 export default authSlice.reducer;
+

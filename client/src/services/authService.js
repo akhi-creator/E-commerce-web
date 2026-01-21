@@ -19,6 +19,24 @@ export const authService = {
         return response.data;
     },
 
+    googleLogin: async (credential) => {
+        const response = await api.post('/auth/google', { credential });
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
+        return response.data;
+    },
+
+    facebookLogin: async (accessToken, userID) => {
+        const response = await api.post('/auth/facebook', { accessToken, userID });
+        if (response.data.token) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
+        return response.data;
+    },
+
     logout: async () => {
         await api.get('/auth/logout');
         localStorage.removeItem('token');
@@ -41,3 +59,4 @@ export const authService = {
         return response.data;
     }
 };
+
